@@ -64,10 +64,16 @@ namespace App1
 			public const int flashOffButton = 2131034114;
 			
 			// aapt resource value: 0x7f050001
-			public const int flashOnButton = 2131034113;
+			public const int flashTorchOnButton = 2131034113;
 			
 			// aapt resource value: 0x7f050000
 			public const int linearLayout4 = 2131034112;
+			
+			// aapt resource value: 0x7f050003
+			public const int linearLayout5 = 2131034115;
+			
+			// aapt resource value: 0x7f050004
+			public const int turnOnFlashNotification = 2131034116;
 			
 			static Id()
 			{
