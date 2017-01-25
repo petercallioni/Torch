@@ -7,6 +7,8 @@ using Android.Support.V4.App;
 using TaskStackBuilder = Android.Support.V4.App.TaskStackBuilder;
 using static Android.Resource;
 using Android.Content;
+using Android.Runtime;
+using System.Reflection;
 
 namespace App1
 {
@@ -34,23 +36,24 @@ namespace App1
 
             if (!hasFlash)
             {
-                Toast.MakeText(this, "This camera does not have a flash", ToastLength.Short).Show(); ;
+                Toast.MakeText(this, "This camera does not have a flash", ToastLength.Short).Show();
                 return;
             }
 
             camera = Camera.Open();
             parameters = camera.GetParameters();
             ChangeButtons();
-
+            Intent TorchService = new Intent(this, typeof(TorchService));
             serviceCheckBox.Click += delegate
             {
                 if (serviceCheckBox.Checked)
                 {
-
+                    
+                    StartService(TorchService);
                 }
                 else
                 {
-
+                    StopService(TorchService);
                 }
             };
 
@@ -85,25 +88,6 @@ namespace App1
                 flashTorchOnButton.Visibility = ViewStates.Visible;
                 flashOffButton.Visibility = ViewStates.Gone;
             }
-        }
-        private void StartNotification()
-        {
-            // Build the notification:
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                .SetAutoCancel(true)                    // Dismiss from the notif. area when clicked
-               // .SetContentIntent(resultPendingIntent)  // Start 2nd activity when the intent is clicked.
-                .SetContentTitle("Button Clicked")      // Set its title
-                .SetSmallIcon(Resource.Drawable.Icon)  // Display this icon
-                .SetContentText("test"); // The message to display.
-
-            // Finally, publish the notification:
-            NotificationManager notificationManager =
-                (NotificationManager)GetSystemService(Context.NotificationService);
-            notificationManager.Notify(ButtonClickNotificationId, builder.Build());
-        }
-        private void StartFlashNotificatioService()
-        {
-
         }
     }
 }
