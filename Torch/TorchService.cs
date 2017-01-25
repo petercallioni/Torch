@@ -14,150 +14,53 @@ using Android.Hardware;
 
 namespace App1
 {
-    [Service(IsolatedProcess = true)]
-    public class TorchService : Service
+    [Service]
+    public class FlashlightService : Service
     {
-        private TorchBroadCastReceiver _broadcastReceiver;
-        // This is any integer value unique to the application.
-        public const int SERVICE_RUNNING_NOTIFICATION_ID = 10000;
-
-        Camera camera;
-        static readonly string TAG = typeof(TorchService).FullName;
+        FlashlightServiceBinder binder;
 
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
         {
-            // The bulk of the OnStartComand code as been omitted for clarity. 
-            Log.Debug("TorchService", "TorchService Started");
-
-            Intent torchIntent = new Intent("com.callioni.TorchService");
-            PendingIntent torchPendingIntent = PendingIntent.GetActivity(this, 0, torchIntent, 0);
-
-            var notification = new Notification.Builder(this)
-                .SetContentTitle(Resources.GetString(Resource.String.ApplicationName))
-                .SetContentText(Resources.GetString(Resource.String.notification_text))
-                .SetSmallIcon(Resource.Drawable.Icon)
-                .SetContentIntent(torchPendingIntent)
-                .SetOngoing(true)
-                .Build();
-                
-            // Enlist this instance of the service as a foreground service
-            StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, notification);
-
-            return StartCommandResult.Sticky;
+            Log.Debug("DemoService", "DemoService started");
+            Toast.MakeText(this, "The demo service has started", ToastLength.Long).Show();
+            StartServiceInForeground();
+            return StartCommandResult.NotSticky;
         }
-
-        public override IBinder OnBind(Intent intent)
+        void StartServiceInForeground()
         {
-            Log.Debug(TAG, "OnBind");
-            return new FlashlightServiceBinder(this);
-        }
-        public override bool OnUnbind(Intent intent)
-        {
-            // This method is optional
-            Log.Debug(TAG, "OnUnbind");
-            return base.OnUnbind(intent);
-        }
+            var ongoing = new Notification(Resource.Drawable.Icon, "Torch Service in foreground");
+            var pendingIntent = PendingIntent.GetActivity(this, 0, new Intent(this, typeof(MainActivity)), 0);
+            ongoing.SetLatestEventInfo(this, "DemoService", "DemoService is running in the foreground", pendingIntent);
 
-        public override void OnCreate()
-        {
-            Toast.MakeText(Application.Context, "Starting service", ToastLength.Short).Show();
-
-            _broadcastReceiver = new TorchBroadCastReceiver();
-
-            _broadcastReceiver.TorchEventRecieved+= (sender, e) => FlashlightToggle();
-
-            RegisterReceiver(_broadcastReceiver, new IntentFilter("com.callioni.TorchService"));
-            
-
-            Log.Debug(TAG, "OnCreate");
-          //  camera = Camera.Open();
-            base.OnCreate();
+            StartForeground((int)NotificationFlags.ForegroundService, ongoing);
         }
 
         public override void OnDestroy()
         {
-            Toast.MakeText(Application.Context, "Stoping service", ToastLength.Short).Show();
-            Log.Debug(TAG, "OnDestroy");
             base.OnDestroy();
+
+            Log.Debug("DemoService", "DemoService stopped");
         }
 
-        public void FlashlightToggle()
+
+        public override IBinder OnBind(Intent intent)
         {
-            Camera.Parameters parameters;
-            parameters = camera.GetParameters();
-            if (!parameters.FlashMode.Equals(Camera.Parameters.FlashModeOff))
-            {
-                parameters.FlashMode = Camera.Parameters.FlashModeOff;
-                camera.SetParameters(parameters);
-                camera.StartPreview();
-            }
-            else
-            {
-                parameters.FlashMode = Camera.Parameters.FlashModeTorch;
-                camera.SetParameters(parameters);
-                camera.StartPreview();
-            }
+            binder = new FlashlightServiceBinder(this);
+            return binder;
         }
     }
-
     public class FlashlightServiceBinder : Binder
     {
-        public FlashlightServiceBinder(TorchService service)
+        FlashlightService service;
+
+        public FlashlightServiceBinder(FlashlightService service)
         {
-            this.Service = service;
-        }
-        public TorchService Service { get; private set; }
-    }
-
-    public class FlashlightServiceConnection : Java.Lang.Object, IServiceConnection
-    {
-        static readonly string TAG = typeof(FlashlightServiceConnection).FullName;
-
-        public bool IsConnected { get; private set; }
-        public FlashlightServiceBinder Binder { get; private set; }
-
-        public FlashlightServiceConnection()
-        {
-            IsConnected = false;
-            Binder = null;
+            this.service = service;
         }
 
-        public void OnServiceConnected(ComponentName name, IBinder binder)
+        public FlashlightService GetFlashlightService()
         {
-            Binder = binder as FlashlightServiceBinder;
-            IsConnected = Binder != null;
-            Log.Debug(TAG, $"OnServiceConnected {name.ClassName}");
-        }
-
-        public void OnServiceDisconnected(ComponentName name)
-        {
-            Log.Debug(TAG, $"OnServiceDisconnected {name.ClassName}");
-            IsConnected = false;
-            Binder = null;
-        }
-    }
-
-    [IntentFilter(new String[] { "com.callioni.TorchService"})]
-    public class TorchBroadCastReceiver : BroadcastReceiver
-    {
-        public event EventHandler TorchEventRecieved;
-
-        public override void OnReceive(Context context, Intent intent)
-        {
-           switch (intent.Action)
-            {
-                case "com.callioni.TorchService":
-                    OnTorchEventRecieved(null);
-                    break;
-            }
-        }
-
-        protected virtual void OnTorchEventRecieved(EventArgs e)
-        {
-            if (TorchEventRecieved != null)
-            {
-                TorchEventRecieved(this, e);
-            }
+            return service;
         }
     }
 }

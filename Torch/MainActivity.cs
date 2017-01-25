@@ -43,7 +43,7 @@ namespace App1
             camera = Camera.Open();
             parameters = camera.GetParameters();
             ChangeButtons();
-            Intent TorchService = new Intent(this, typeof(TorchService));
+            Intent TorchService = new Intent(this, typeof(FlashlightService));
             serviceCheckBox.Click += delegate
             {
                 if (serviceCheckBox.Checked)
