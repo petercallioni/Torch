@@ -2,50 +2,41 @@
 using Android.Widget;
 using Android.OS;
 using Android.Hardware;
-using Android.Views;
-using Android.Support.V4.App;
-using TaskStackBuilder = Android.Support.V4.App.TaskStackBuilder;
-using static Android.Resource;
 using Android.Content;
-using Android.Runtime;
-using System.Reflection;
-using Android.Hardware.Camera2;
-using Java.Lang;
+using Android.Views;
 
 namespace App1
 {
     [Activity(Label = "@string/ApplicationName", MainLauncher = true, Icon = "@drawable/icon")]
-    public class MainActivity : Activity
+    public class FlashLightActivity : Activity
     {
-        private static readonly int ButtonClickNotificationId = 1000;
-        public Camera camera { get; set; }
-        bool light;
-        Camera.Parameters parameters;
+        //ui
         Button flashTorchOnButton;
         Button flashOffButton;
         CheckBox serviceCheckBox;
 
+        private bool light;
+        private Camera camera;
+
         protected override void OnCreate(Bundle bundle)
         {
+            //if the phone as a flash to use
             bool hasFlash = ApplicationContext.PackageManager.HasSystemFeature(Android.Content.PM.PackageManager.FeatureCameraFlash);
 
             base.OnCreate(bundle);
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.Main);
+            //ui instantiations
             serviceCheckBox = FindViewById<CheckBox>(Resource.Id.turnOnFlashNotification);
             flashTorchOnButton = FindViewById<Button>(Resource.Id.flashTorchOnButton);
             flashOffButton = FindViewById<Button>(Resource.Id.flashOffButton);
-
 
             if (!hasFlash)
             {
                 Toast.MakeText(this, "This camera does not have a flash", ToastLength.Short).Show();
                 return;
             }
-
-            //camera = Camera.Open();
-            //parameters = camera.GetParameters();
-            ////  ChangeButtons();
+            //turn on notification action button
             Intent TorchService = new Intent(this, typeof(FlashlightNotificationService));
             serviceCheckBox.Click += delegate
             {
@@ -60,31 +51,50 @@ namespace App1
                 }
             };
 
+            //other buttons
             flashTorchOnButton.Click += delegate
             {
-               SendBroadcast(new Intent ("com.callioni.Torch.flashOn"));
+                SendBroadcast(new Intent("com.callioni.Torch.Toggle"));
+                ChangeButtons();
+                light = true;
             };
 
             flashOffButton.Click += delegate
             {
-                SendBroadcast(new Intent("com.callioni.Torch.flashOff"));
-                };
+                SendBroadcast(new Intent("com.callioni.Torch.Toggle"));
+                ChangeButtons();
+                light = false;
+            };
+        }
+        protected override void OnNewIntent(Intent intent)
+        {
+            light = intent.GetBooleanExtra("flashStatus", false);
+            ChangeButtons();
+            base.OnNewIntent(intent);
+        }
+        protected override void OnStart()
+        {
+            QueryTorchStatus();
+            base.OnStart();
         }
 
+        private void QueryTorchStatus()
+        {
+            SendBroadcast(new Intent("com.callioni.Torch.Status"));
+        }
 
+        private void ChangeButtons()
+        {
+            if (light)
+            {
+                flashTorchOnButton.Visibility = ViewStates.Gone;
+                flashOffButton.Visibility = ViewStates.Visible;
+            }
+            else
+            {
+                flashTorchOnButton.Visibility = ViewStates.Visible;
+                flashOffButton.Visibility = ViewStates.Gone;
+            }
+        }
     }
-    /* private void ChangeButtons()
-    {
-        if (!parameters.FlashMode.Equals(Camera.Parameters.FlashModeOff))
-        {
-            light = true;
-            flashTorchOnButton.Visibility = ViewStates.Gone;
-            flashOffButton.Visibility = ViewStates.Visible;
-        }
-        else
-        {
-            light = false;
-            flashTorchOnButton.Visibility = ViewStates.Visible;
-            flashOffButton.Visibility = ViewStates.Gone;
-        }*/
 }

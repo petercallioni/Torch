@@ -1,17 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Runtime;
-using Android.Views;
 using Android.Widget;
 using Android.Util;
 using Android.Hardware;
-using Android.Hardware.Camera2;
 
 namespace App1
 {
@@ -22,7 +14,7 @@ namespace App1
 
         public const int SERVICE_RUNNING_NOTIFICATION_ID = 10000;
 
-
+        //on service start
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
         {
             Log.Debug("TorchService", "TorchService started");
@@ -30,8 +22,10 @@ namespace App1
             StartServiceInForeground();
             return StartCommandResult.NotSticky;
         }
+
         void StartServiceInForeground()
         {
+            // intent to toggle the flashlight on/off
             var toggleFlashIntent = PendingIntent.GetBroadcast(this, 0, new Intent("com.callioni.Torch.Toggle"), PendingIntentFlags.UpdateCurrent);
             var notification = new Notification.Builder(this)
                 .SetContentTitle(Resources.GetString(Resource.String.ApplicationName))
@@ -47,10 +41,8 @@ namespace App1
         public override void OnDestroy()
         {
             base.OnDestroy();
-
             Log.Debug("TorchService", "TorchService stopped");
         }
-
 
         public override IBinder OnBind(Intent intent)
         {
@@ -75,51 +67,76 @@ namespace App1
     }
 
     [BroadcastReceiver(Enabled = true)]
-    [IntentFilter(new[] { "com.callioni.Torch.Toggle" })]
-    public class ToggleFlashlightToggleService : BroadcastReceiver
+    [IntentFilter(new[] { "com.callioni.Torch.Toggle", "com.callioni.Torch.Status" })]
+    public class ToggleFlashlightService : BroadcastReceiver
     {
         static Camera camera = null;
+        bool status = false;
         FlashlightToggleServiceBinder binder;
 
         public override void OnReceive(Context context, Intent intent)
         {
             Camera.Parameters parameters;
 
-            if (camera == null)
+            switch (intent.Action)
             {
-                camera = Camera.Open();
-                parameters = camera.GetParameters();
-                parameters.FlashMode = Camera.Parameters.FlashModeTorch;
-                camera.SetParameters(parameters);
-                camera.StartPreview();
-                return;
-            }
+                case "com.callioni.Torch.Toggle":
+                    //if the flaslight is off
+                    if (camera == null)
+                    {
+                        camera = Camera.Open();
+                        parameters = camera.GetParameters();
+                        parameters.FlashMode = Camera.Parameters.FlashModeTorch;
+                        camera.SetParameters(parameters);
+                        camera.StartPreview();
+                        return;
+                    }
 
-            if (camera != null)
-            {
-                parameters = camera.GetParameters();
-                if(!parameters.FlashMode.Equals(Camera.Parameters.FlashModeOff))
-                {
-                    parameters.FlashMode = Camera.Parameters.FlashModeOff;
-                    camera.SetParameters(parameters);
-                }
-                camera.StopPreview();
-                camera.Release();
-                camera = null;
-                return;
+                    //if the camera is open
+                    if (camera != null)
+                    {
+                        parameters = camera.GetParameters();
+                        //if the flashlight is on
+                        if (!parameters.FlashMode.Equals(Camera.Parameters.FlashModeOff))
+                        {
+                            parameters.FlashMode = Camera.Parameters.FlashModeOff;
+                            camera.SetParameters(parameters);
+                        }
+                        camera.StopPreview();
+                        camera.Release();
+                        camera = null;
+                        return;
+                    }
+                    break;
+                case "com.callioni.Torch.Status":
+                    if (camera != null)
+                    {
+                        parameters = camera.GetParameters();
+                        status = parameters.FlashMode.Equals(Camera.Parameters.FlashModeOff) ? false : true;
+                    }
+                    else
+                        status = false;
+                    Intent sendBackStatus = new Intent(context, typeof(FlashLightActivity));
+                    sendBackStatus.AddFlags(ActivityFlags.SingleTop);
+                    sendBackStatus.AddFlags(ActivityFlags.NewTask);
+                    string name = "flashStatus";
+                    sendBackStatus.PutExtra(name, status);
+                    context.StartActivity(sendBackStatus);
+                    break;
             }
         }
     }
+
     public class FlashlightToggleServiceBinder : Binder
     {
-        ToggleFlashlightToggleService service;
+        ToggleFlashlightService service;
 
-        public FlashlightToggleServiceBinder(ToggleFlashlightToggleService service)
+        public FlashlightToggleServiceBinder(ToggleFlashlightService service)
         {
             this.service = service;
         }
 
-        public ToggleFlashlightToggleService GetFlashlightService()
+        public ToggleFlashlightService GetFlashlightService()
         {
             return service;
         }
