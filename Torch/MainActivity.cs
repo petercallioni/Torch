@@ -9,6 +9,8 @@ using static Android.Resource;
 using Android.Content;
 using Android.Runtime;
 using System.Reflection;
+using Android.Hardware.Camera2;
+using Java.Lang;
 
 namespace App1
 {
@@ -16,12 +18,13 @@ namespace App1
     public class MainActivity : Activity
     {
         private static readonly int ButtonClickNotificationId = 1000;
-        private Camera camera;
+        public Camera camera { get; set; }
         bool light;
         Camera.Parameters parameters;
         Button flashTorchOnButton;
         Button flashOffButton;
         CheckBox serviceCheckBox;
+
         protected override void OnCreate(Bundle bundle)
         {
             bool hasFlash = ApplicationContext.PackageManager.HasSystemFeature(Android.Content.PM.PackageManager.FeatureCameraFlash);
@@ -40,15 +43,15 @@ namespace App1
                 return;
             }
 
-            camera = Camera.Open();
-            parameters = camera.GetParameters();
-            ChangeButtons();
-            Intent TorchService = new Intent(this, typeof(FlashlightService));
+            //camera = Camera.Open();
+            //parameters = camera.GetParameters();
+            ////  ChangeButtons();
+            Intent TorchService = new Intent(this, typeof(FlashlightNotificationService));
             serviceCheckBox.Click += delegate
             {
                 if (serviceCheckBox.Checked)
                 {
-                    
+
                     StartService(TorchService);
                 }
                 else
@@ -59,36 +62,29 @@ namespace App1
 
             flashTorchOnButton.Click += delegate
             {
-                parameters.FlashMode = Camera.Parameters.FlashModeTorch;
-                camera.SetParameters(parameters);
-                camera.StartPreview();
-                ChangeButtons();
+               SendBroadcast(new Intent ("com.callioni.Torch.flashOn"));
             };
 
             flashOffButton.Click += delegate
             {
-                parameters.FlashMode = Camera.Parameters.FlashModeOff;
-                camera.SetParameters(parameters);
-                camera.StartPreview();
-                ChangeButtons();
-            };
+                SendBroadcast(new Intent("com.callioni.Torch.flashOff"));
+                };
+        }
 
-        }
-        private void ChangeButtons()
-        {
-            if (!parameters.FlashMode.Equals(Camera.Parameters.FlashModeOff))
-            {
-                light = true;
-                flashTorchOnButton.Visibility = ViewStates.Gone;
-                flashOffButton.Visibility = ViewStates.Visible;
-            }
-            else
-            {
-                light = false;
-                flashTorchOnButton.Visibility = ViewStates.Visible;
-                flashOffButton.Visibility = ViewStates.Gone;
-            }
-        }
+
     }
+    /* private void ChangeButtons()
+    {
+        if (!parameters.FlashMode.Equals(Camera.Parameters.FlashModeOff))
+        {
+            light = true;
+            flashTorchOnButton.Visibility = ViewStates.Gone;
+            flashOffButton.Visibility = ViewStates.Visible;
+        }
+        else
+        {
+            light = false;
+            flashTorchOnButton.Visibility = ViewStates.Visible;
+            flashOffButton.Visibility = ViewStates.Gone;
+        }*/
 }
-
