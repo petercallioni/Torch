@@ -4,6 +4,7 @@ using Android.OS;
 using Android.Widget;
 using Android.Util;
 using Android.Hardware;
+using System.Linq;
 
 namespace App1
 {
@@ -71,13 +72,13 @@ namespace App1
     public class ToggleFlashlightService : BroadcastReceiver
     {
         static Camera camera = null;
-        bool status = false;
-        FlashlightToggleServiceBinder binder;
+        int status = 0;
+        string name = "flashStatus";
+        Intent sendBackStatus;
+        Camera.Parameters parameters;
 
         public override void OnReceive(Context context, Intent intent)
         {
-            Camera.Parameters parameters;
-
             switch (intent.Action)
             {
                 case "com.callioni.Torch.Toggle":
@@ -109,21 +110,24 @@ namespace App1
                     }
                     break;
                 case "com.callioni.Torch.Status":
-                    if (camera != null)
-                    {
-                        parameters = camera.GetParameters();
-                        status = parameters.FlashMode.Equals(Camera.Parameters.FlashModeOff) ? false : true;
-                    }
-                    else
-                        status = false;
-                    Intent sendBackStatus = new Intent(context, typeof(FlashLightActivity));
-                    sendBackStatus.AddFlags(ActivityFlags.SingleTop);
-                    sendBackStatus.AddFlags(ActivityFlags.NewTask);
-                    string name = "flashStatus";
-                    sendBackStatus.PutExtra(name, status);
-                    context.StartActivity(sendBackStatus);
+                    QueryFlashStatus(context);
                     break;
             }
+        }
+        private void QueryFlashStatus(Context context)
+        {
+            if (camera != null)
+            {
+                parameters = camera.GetParameters();
+                status = parameters.FlashMode.Equals(Camera.Parameters.FlashModeOff) ? 0 : 1;
+            }
+            else
+                status = 0;
+            sendBackStatus = new Intent(context, typeof(FlashLightActivity));
+            sendBackStatus.AddFlags(ActivityFlags.SingleTop);
+            sendBackStatus.AddFlags(ActivityFlags.NewTask);
+            sendBackStatus.PutExtra(name, status);
+            context.StartActivity(sendBackStatus);
         }
     }
 
