@@ -2,4 +2,8 @@
 <resources>
     <string name="ApplicationName">Torch</string>
   <string name="notification_text">Toggle Flashlight</string>
+  <string name="MenuSubText">Made by: Peter Callioni</string>
+  <string name="open_drawer">Open drawer</string>
+  <string name="close_drawer">Close drawer</string>
+
 </resources>

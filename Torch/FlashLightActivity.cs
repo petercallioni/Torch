@@ -6,17 +6,19 @@ using Android.Views;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace App1
+using Android.Support.Design.Widget;
+using Android.Support.V4.Widget;
+using Android.Support.V7.Widget;
+using Android.Support.V7.App;
+
+namespace TorchMain
 {
     [Activity(Label = "@string/ApplicationName", MainLauncher = true, Icon = "@drawable/icon")]
-    public class FlashLightActivity : Activity
+    public class FlashLightActivity : AppCompatActivity
     {
-        // ui
-        private Button flashTorchOnButton;
-        private Button flashOffButton;
-        private CheckBox serviceCheckBox;
+        DrawerLayout drawerLayout;
 
-        private bool light;
+        public static bool light { get; set; }
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -33,50 +35,39 @@ namespace App1
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.Main);
 
-            // ui instantiations
-            serviceCheckBox = FindViewById<CheckBox>(Resource.Id.turnOnFlashNotification);
-            flashTorchOnButton = FindViewById<Button>(Resource.Id.flashTorchOnButton);
-            flashOffButton = FindViewById<Button>(Resource.Id.flashOffButton);
+            drawerLayout = FindViewById<DrawerLayout>(Resource.Id.drawer_layout);
 
+           
+            // Initialize toolbar
+            var toolbar = FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.app_bar);
+            SetSupportActionBar(toolbar);
+            SupportActionBar.SetTitle(Resource.String.ApplicationName);
+            SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+            SupportActionBar.SetDisplayShowHomeEnabled(true);
 
-            // turn on notification action button
-            Intent TorchService = new Intent(this, typeof(FlashlightNotificationService));
+            // Attach item selected handler to navigation view
+            var navigationView = FindViewById<NavigationView>(Resource.Id.nav_view);
+            navigationView.NavigationItemSelected += NavigationView_NavigationItemSelected;
 
+            // Create ActionBarDrawerToggle button and add it to the toolbar
+            var drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, Resource.String.open_drawer, Resource.String.close_drawer);
+            drawerLayout.SetDrawerListener(drawerToggle);
+            drawerToggle.SyncState();
 
-            foreach (string service in GetRunningServices())
+            var ft = FragmentManager.BeginTransaction();
+            ft.AddToBackStack(null);
+            ft.Add(Resource.Id.HomeFrameLayout, new HomeFragment(), "HomeFragment");
+            ft.Commit();
+
+        }
+        void NavigationView_NavigationItemSelected(object sender, NavigationView.NavigationItemSelectedEventArgs e)
+        {
+            switch (e.MenuItem.ItemId)
             {
-                if (service.Contains("FlashlightNotificationService"))
-                {
-                    serviceCheckBox.Checked = true;
-                }
+    
             }
-            serviceCheckBox.Click += delegate
-            {
-                if (serviceCheckBox.Checked)
-                {
-
-                    StartService(TorchService);
-                }
-                else
-                {
-                    StopService(TorchService);
-                }
-            };
-
-            // other buttons
-            flashTorchOnButton.Click += delegate
-            {
-                SendBroadcast(new Intent("com.callioni.Torch.Toggle"));
-                light = true;
-                ChangeButtons();
-            };
-
-            flashOffButton.Click += delegate
-            {
-                SendBroadcast(new Intent("com.callioni.Torch.Toggle"));
-                light = false;
-                ChangeButtons();
-            };
+            // Close drawer
+            drawerLayout.CloseDrawers();
         }
         protected override void OnNewIntent(Intent intent)
         {
@@ -91,7 +82,8 @@ namespace App1
                     light = true;
                     break;
             }
-            ChangeButtons();
+            HomeFragment fragment = (HomeFragment)FragmentManager.FindFragmentByTag("HomeFragment");
+            fragment.ChangeButtons();
             base.OnNewIntent(intent);
         }
         protected override void OnStart()
@@ -103,27 +95,6 @@ namespace App1
         private void QueryTorchStatus()
         {
             SendBroadcast(new Intent("com.callioni.Torch.Status"));
-        }
-
-        private void ChangeButtons()
-        {
-            if (light)
-            {
-                flashTorchOnButton.Visibility = ViewStates.Gone;
-                flashOffButton.Visibility = ViewStates.Visible;
-            }
-            else
-            {
-                flashTorchOnButton.Visibility = ViewStates.Visible;
-                flashOffButton.Visibility = ViewStates.Gone;
-            }
-        }
-
-        private IEnumerable<string> GetRunningServices()
-        {
-            var manager = (ActivityManager)GetSystemService(ActivityService);
-            return manager.GetRunningServices(int.MaxValue).Select(
-                service => service.Service.ClassName).ToList();
         }
     }
 }

@@ -1,43 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:minWidth="25px"
     android:minHeight="25px"
     android:weightSum="2">
+  <android.support.v4.widget.DrawerLayout
+      android:orientation="vertical"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:minWidth="25px"
+      android:minHeight="25px"
+      android:id="@+id/drawer_layout">
     <LinearLayout
-        android:orientation="vertical"
+        android:id="@+id/layout_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/linearLayout4"
-        android:weightSum="2"
-        android:layout_weight="1">
-        <Button
-            android:text="On"
-            android:id="@+id/flashTorchOnButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center" />
-        <Button
-            android:text="Off"
-            android:id="@+id/flashOffButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center" />
+        android:orientation="vertical">
+      <include
+          layout="@layout/app_bar" />
+      <FrameLayout
+          android:id="@+id/HomeFrameLayout"
+          android:minWidth="25px"
+          android:minHeight="25px"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent" />
     </LinearLayout>
-    <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:id="@+id/linearLayout5"
-        android:layout_width="match_parent"
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_weight="0.7">
-        <CheckBox
-            android:text="Turn On Service"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/turnOnFlashNotification" />
-    </LinearLayout>
+        android:layout_gravity="start"
+        app:menu="@menu/navmenu"
+        app:headerLayout="@layout/headerdrawerlayout" />
+  </android.support.v4.widget.DrawerLayout>
 </LinearLayout>

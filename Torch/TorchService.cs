@@ -6,7 +6,7 @@ using Android.Util;
 using Android.Hardware;
 using System.Linq;
 
-namespace App1
+namespace TorchMain
 {
     [Service]
     public class FlashlightNotificationService : Service
@@ -128,21 +128,6 @@ namespace App1
             sendBackStatus.AddFlags(ActivityFlags.NewTask);
             sendBackStatus.PutExtra(name, status);
             context.StartActivity(sendBackStatus);
-        }
-    }
-
-    public class FlashlightToggleServiceBinder : Binder
-    {
-        ToggleFlashlightService service;
-
-        public FlashlightToggleServiceBinder(ToggleFlashlightService service)
-        {
-            this.service = service;
-        }
-
-        public ToggleFlashlightService GetFlashlightService()
-        {
-            return service;
         }
     }
 }
