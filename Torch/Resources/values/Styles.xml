@@ -3,10 +3,10 @@
  	<style name="MyTheme.Base" parent="Theme.AppCompat.Light.DarkActionBar">
 	    <item name="windowNoTitle">true</item>
 	    <item name="windowActionBar">false</item>
-	    <item name="colorControlNormal">#0C92CF</item>
-	    <item name="colorPrimary">#2196F3</item>
-	    <item name="colorPrimaryDark">#1976D2</item>
-	    <item name="colorAccent">#0C92CF</item> 
+	    <item name="colorControlNormal">#053A52</item> <!--Unselected Stuff-->
+	    <item name="colorPrimary">#37474f</item> <!---Action Bar Color-->
+	    <item name="colorPrimaryDark">#263238</item> <!--System Bar Color-->
+	    <item name="colorAccent">#010C10</item>
   	</style>  
   	<style name="MyTheme" parent="MyTheme.Base">
   	</style> 

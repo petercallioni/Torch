@@ -3,5 +3,6 @@
 	<uses-sdk android:minSdkVersion="16" android:targetSdkVersion="25" />
 	<uses-permission android:name="android.permission.FLASHLIGHT" />
 	<uses-permission android:name="android.permission.CAMERA" />
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 	<application android:label="@string/ApplicationName" android:theme="@style/MyTheme"></application>
 </manifest>

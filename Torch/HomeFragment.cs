@@ -16,13 +16,19 @@ namespace TorchMain
     public class HomeFragment : Fragment
     {
         // ui
-        private Button flashTorchOnButton;
-        private Button flashOffButton;
+        private ImageButton flashTorchOnButton;
+        private ImageButton flashOffButton;
         private CheckBox serviceCheckBox;
         
         public override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+        }
+
+        public override void OnResume()
+        {
+            ChangeButtons();
+            base.OnResume();
         }
 
         public void ChangeButtons()
@@ -39,44 +45,17 @@ namespace TorchMain
             }
         }
 
-        private IEnumerable<string> GetRunningServices()
-        {
-            var manager = (ActivityManager)Application.Context.GetSystemService(Context.ActivityService);
-            return manager.GetRunningServices(int.MaxValue).Select(
-                service => service.Service.ClassName).ToList();
-        }
+       
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             var rootView = inflater.Inflate(Resource.Layout.home_fragment, container, false);
 
             // ui instantiations
-            serviceCheckBox = rootView.FindViewById<CheckBox>(Resource.Id.turnOnFlashNotification);
-            flashTorchOnButton = rootView.FindViewById<Button>(Resource.Id.flashTorchOnButton);
-            flashOffButton = rootView.FindViewById<Button>(Resource.Id.flashOffButton);
+            flashTorchOnButton = rootView.FindViewById<ImageButton>(Resource.Id.flashTorchOnButton);
+            flashOffButton = rootView.FindViewById<ImageButton>(Resource.Id.flashOffButton);
 
-            // turn on notification action button
-            Intent TorchService = new Intent(Application.Context, typeof(FlashlightNotificationService));
-
-            foreach (string service in GetRunningServices())
-            {
-                if (service.Contains("FlashlightNotificationService"))
-                {
-                    serviceCheckBox.Checked = true;
-                }
-            }
-            serviceCheckBox.Click += delegate
-            {
-                if (serviceCheckBox.Checked)
-                {
-
-                    Application.Context.StartService(TorchService);
-                }
-                else
-                {
-                    Application.Context.StopService(TorchService);
-                }
-            };
+            ChangeButtons();
 
             // other buttons
             flashTorchOnButton.Click += delegate

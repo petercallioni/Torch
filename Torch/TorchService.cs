@@ -5,6 +5,7 @@ using Android.Widget;
 using Android.Util;
 using Android.Hardware;
 using System.Linq;
+using Android.Preferences;
 
 namespace TorchMain
 {
@@ -68,7 +69,7 @@ namespace TorchMain
     }
 
     [BroadcastReceiver(Enabled = true)]
-    [IntentFilter(new[] { "com.callioni.Torch.Toggle", "com.callioni.Torch.Status" })]
+    [IntentFilter(new[] { "com.callioni.Torch.Toggle", "com.callioni.Torch.Status", Intent.ActionBootCompleted })]
     public class ToggleFlashlightService : BroadcastReceiver
     {
         static Camera camera = null;
@@ -111,6 +112,15 @@ namespace TorchMain
                     break;
                 case "com.callioni.Torch.Status":
                     QueryFlashStatus(context);
+                    break;
+                case Intent.ActionBootCompleted:
+                    ISharedPreferences sharedPreferences = Application.Context.GetSharedPreferences("com.callioni.Torch_preferences", FileCreationMode.Private);
+                    if (sharedPreferences.GetBoolean("Flashlight_Service", false))
+                      {
+                     Intent service = new Intent(context, typeof(FlashlightNotificationService));
+                     service.AddFlags(ActivityFlags.NewTask);
+                     context.ApplicationContext.StartService(service);
+                     }
                     break;
             }
         }

@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:minWidth="25px"
     android:minHeight="25px"
-    android:weightSum="2">
+    android:weightSum="2"
+    android:backgroundTint="#ff263238">
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -14,18 +15,25 @@
         android:id="@+id/linearLayout4"
         android:weightSum="2"
         android:layout_weight="1">
-        <Button
-            android:text="On"
+        <ImageButton
             android:id="@+id/flashTorchOnButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center" />
-        <Button
-            android:text="Off"
+            android:layout_gravity="center"
+            android:tint="#ff008000"
+            android:scaleType="fitCenter"
+            android:src="@drawable/powerbutton"
+            android:background="#1B252A" />
+        <ImageButton
             android:id="@+id/flashOffButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center" />
+            android:src="@drawable/powerbutton"
+            android:layout_gravity="center"
+            android:tint="#ffff0000"
+            android:scaleType="fitCenter"
+            android:visibility="gone"
+            android:background="#1B252A" />
     </LinearLayout>
     <LinearLayout
         android:orientation="horizontal"
@@ -34,11 +42,5 @@
         android:id="@+id/linearLayout5"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="0.7">
-        <CheckBox
-            android:text="Turn On Service"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/turnOnFlashNotification" />
-    </LinearLayout>
+        android:layout_weight="0.7" />
 </LinearLayout>

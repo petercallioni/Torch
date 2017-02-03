@@ -1,12 +1,13 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-  <group android:checkableBehavior="single">
-    <item/>
+    <item 
+      android:id="@+id/toggleService"
+      android:title="Toggle Flashlight Service"
+      android:checkable="true"/>
     <item />
     <item />
     <item />
 
-  </group> 
      <!--
      <item android:title="title">
       <menu>

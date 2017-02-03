@@ -10,6 +10,7 @@ using Android.Support.Design.Widget;
 using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
 using Android.Support.V7.App;
+using Android.Preferences;
 
 namespace TorchMain
 {
@@ -17,13 +18,46 @@ namespace TorchMain
     public class FlashLightActivity : AppCompatActivity
     {
         DrawerLayout drawerLayout;
+        Intent TorchService;
+        ISharedPreferences sharedPreferences;
+        ISharedPreferencesEditor editor;
+        NavigationView navigationView;
+        private const string FLASHLIGHT_SERVICE = "Flashlight_Service";
 
         public static bool light { get; set; }
+
+        protected override void OnResume()
+        {
+            if (sharedPreferences.GetBoolean(FLASHLIGHT_SERVICE, false))
+            {
+                bool running = false;
+                navigationView.Menu.FindItem(Resource.Id.toggleService).SetChecked(true);
+
+                foreach(string service in GetRunningServices())
+                {
+                    if(service.Equals("FlashlightNotificationService"))
+                    {
+                        running = true;
+                    }
+                }
+                if(!running)
+                {
+                    StartService(new Intent(Application.Context, typeof(FlashlightNotificationService)));
+                }
+            }
+            base.OnResume();
+        }
 
         protected override void OnCreate(Bundle bundle)
         {
             // if the phone as a flash to use
             bool hasFlash = ApplicationContext.PackageManager.HasSystemFeature(Android.Content.PM.PackageManager.FeatureCameraFlash);
+            sharedPreferences = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+            editor = sharedPreferences.Edit();
+
+            // turn on notification action button
+            TorchService = new Intent(Application.Context, typeof(FlashlightNotificationService));
+
 
             if (!hasFlash)
             {
@@ -37,7 +71,7 @@ namespace TorchMain
 
             drawerLayout = FindViewById<DrawerLayout>(Resource.Id.drawer_layout);
 
-           
+
             // Initialize toolbar
             var toolbar = FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.app_bar);
             SetSupportActionBar(toolbar);
@@ -46,7 +80,7 @@ namespace TorchMain
             SupportActionBar.SetDisplayShowHomeEnabled(true);
 
             // Attach item selected handler to navigation view
-            var navigationView = FindViewById<NavigationView>(Resource.Id.nav_view);
+            navigationView = FindViewById<NavigationView>(Resource.Id.nav_view);
             navigationView.NavigationItemSelected += NavigationView_NavigationItemSelected;
 
             // Create ActionBarDrawerToggle button and add it to the toolbar
@@ -60,11 +94,29 @@ namespace TorchMain
             ft.Commit();
 
         }
+
         void NavigationView_NavigationItemSelected(object sender, NavigationView.NavigationItemSelectedEventArgs e)
         {
             switch (e.MenuItem.ItemId)
             {
-    
+                case (Resource.Id.toggleService):
+                    if (e.MenuItem.IsChecked)
+                    {
+                        Application.Context.StopService(TorchService);
+                        e.MenuItem.SetChecked(false);
+                        editor.PutBoolean(FLASHLIGHT_SERVICE, false);
+                        editor.Commit();
+                    }
+                    else
+                    {
+                        editor.PutBoolean(FLASHLIGHT_SERVICE, true);
+                        Application.Context.StartService(TorchService);
+                        e.MenuItem.SetChecked(true);
+                        editor.Commit();
+                    }
+                    break;
+                default:
+                    break;
             }
             // Close drawer
             drawerLayout.CloseDrawers();
@@ -72,7 +124,6 @@ namespace TorchMain
         protected override void OnNewIntent(Intent intent)
         {
             int result = intent.GetIntExtra("flashStatus", 0);
-            Toast.MakeText(this, "data recieved = " + result, ToastLength.Short).Show();
             switch (result)
             {
                 case 0:
@@ -95,6 +146,12 @@ namespace TorchMain
         private void QueryTorchStatus()
         {
             SendBroadcast(new Intent("com.callioni.Torch.Status"));
+        }
+        private IEnumerable<string> GetRunningServices()
+        {
+            var manager = (ActivityManager)GetSystemService(ActivityService);
+            return manager.GetRunningServices(int.MaxValue).Select(
+                service => service.Service.ClassName).ToList();
         }
     }
 }
