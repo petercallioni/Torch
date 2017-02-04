@@ -33,14 +33,14 @@ namespace TorchMain
                 bool running = false;
                 navigationView.Menu.FindItem(Resource.Id.toggleService).SetChecked(true);
 
-                foreach(string service in GetRunningServices())
+                foreach (string service in GetRunningServices())
                 {
-                    if(service.Equals("FlashlightNotificationService"))
+                    if (service.Equals("FlashlightNotificationService"))
                     {
                         running = true;
                     }
                 }
-                if(!running)
+                if (!running)
                 {
                     StartService(new Intent(Application.Context, typeof(FlashlightNotificationService)));
                 }
@@ -82,6 +82,25 @@ namespace TorchMain
             // Attach item selected handler to navigation view
             navigationView = FindViewById<NavigationView>(Resource.Id.nav_view);
             navigationView.NavigationItemSelected += NavigationView_NavigationItemSelected;
+
+            int[][] states = new int[][] {
+                
+                new int[] {-Android.Resource.Attribute.StateEnabled}, // disabled
+                new int[] {-Android.Resource.Attribute.StateChecked}, // unchecked
+                new int[] { Android.Resource.Attribute.StatePressed },  // pressed
+                new int[] { Android.Resource.Attribute.StateEnabled} // enabled
+            };
+
+            int[] colors = new int[] {
+                Android.Graphics.Color.Blue,
+                Android.Graphics.Color.Red,
+                Android.Graphics.Color.White,
+                Android.Graphics.Color.Green
+            };
+
+
+            navigationView.ItemTextColor = new Android.Content.Res.ColorStateList(states, colors);
+            navigationView.SetBackgroundColor(Android.Graphics.Color.Argb(255, 55, 71, 79));
 
             // Create ActionBarDrawerToggle button and add it to the toolbar
             var drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, Resource.String.open_drawer, Resource.String.close_drawer);

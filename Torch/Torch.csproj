@@ -188,7 +188,10 @@
     <AndroidResource Include="Resources\drawable\imgBg.png" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\drawable\powerbutton.png" />
+    <AndroidResource Include="Resources\drawable\powerbuttonS.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\powerbuttonXS.png" />
   </ItemGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
