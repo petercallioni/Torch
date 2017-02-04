@@ -91,8 +91,12 @@ namespace TorchMain
                         parameters.FlashMode = Camera.Parameters.FlashModeTorch;
                         camera.SetParameters(parameters);
                         camera.StartPreview();
-                        QueryFlashStatus(context); // camera != null == button toggles to show off
+                        if(FlashLightActivity.InForground)
+                        {
+                            QueryFlashStatus(context); // camera != null == button toggles to show off
+                        }
                         return;
+                        
                     }
 
                     //if the camera is open
@@ -108,7 +112,10 @@ namespace TorchMain
                         camera.StopPreview();
                         camera.Release();
                         camera = null;
-                        QueryFlashStatus(context); // camera = null == button toggles to show on
+                        if (FlashLightActivity.InForground)
+                        {
+                            QueryFlashStatus(context); // camera = null == button toggles to show on
+                        }
                         return;
                     }
                     break;

@@ -24,10 +24,13 @@ namespace TorchMain
         NavigationView navigationView;
         private const string FLASHLIGHT_SERVICE = "Flashlight_Service";
 
+        public static bool InForground { get; set; } = false;
+
         public static bool light { get; set; }
 
         protected override void OnResume()
         {
+            InForground = true;
             if (sharedPreferences.GetBoolean(FLASHLIGHT_SERVICE, false))
             {
                 bool running = false;
@@ -46,6 +49,12 @@ namespace TorchMain
                 }
             }
             base.OnResume();
+        }
+
+        protected override void OnPause()
+        {
+            InForground = false;
+            base.OnPause();
         }
 
         protected override void OnCreate(Bundle bundle)
