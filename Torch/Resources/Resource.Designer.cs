@@ -2413,6 +2413,9 @@ namespace TorchMain
 			// aapt resource value: 0x7f06008e
 			public const int toggleService = 2131099790;
 			
+			// aapt resource value: 0x7f06008f
+			public const int toggleServiceIcon = 2131099791;
+			
 			// aapt resource value: 0x7f060025
 			public const int top = 2131099685;
 			

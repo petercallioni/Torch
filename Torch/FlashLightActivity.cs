@@ -2,15 +2,14 @@
 using Android.Widget;
 using Android.OS;
 using Android.Content;
-using Android.Views;
 using System.Collections.Generic;
 using System.Linq;
 
 using Android.Support.Design.Widget;
 using Android.Support.V4.Widget;
-using Android.Support.V7.Widget;
 using Android.Support.V7.App;
 using Android.Preferences;
+using Android.Views;
 
 namespace TorchMain
 {
@@ -23,10 +22,11 @@ namespace TorchMain
         ISharedPreferencesEditor editor;
         NavigationView navigationView;
         private const string FLASHLIGHT_SERVICE = "Flashlight_Service";
+        private const string FLASHLIGHT_SERVICE_ICON = "Flashlight_Service_Icon";
 
         public static bool InForground { get; set; } = false;
 
-        public static bool light { get; set; }
+        public static bool Light { get; set; }
 
         protected override void OnResume()
         {
@@ -47,6 +47,10 @@ namespace TorchMain
                 {
                     StartService(new Intent(Application.Context, typeof(FlashlightNotificationService)));
                 }
+            }
+            if (sharedPreferences.GetBoolean(FLASHLIGHT_SERVICE_ICON, false))
+            {
+                navigationView.Menu.FindItem(Resource.Id.toggleServiceIcon).SetChecked(true);
             }
             base.OnResume();
         }
@@ -93,7 +97,7 @@ namespace TorchMain
             navigationView.NavigationItemSelected += NavigationView_NavigationItemSelected;
 
             int[][] states = new int[][] {
-                
+
                 new int[] {-Android.Resource.Attribute.StateEnabled}, // disabled
                 new int[] {-Android.Resource.Attribute.StateChecked}, // unchecked
                 new int[] { Android.Resource.Attribute.StatePressed },  // pressed
@@ -139,8 +143,34 @@ namespace TorchMain
                     {
                         editor.PutBoolean(FLASHLIGHT_SERVICE, true);
                         Application.Context.StartService(TorchService);
+                        Toast.MakeText(this, "The flashlight service has started", ToastLength.Long).Show();
                         e.MenuItem.SetChecked(true);
                         editor.Commit();
+                    }
+                    break;
+                case (Resource.Id.toggleServiceIcon):
+                    if (sharedPreferences.GetBoolean(FLASHLIGHT_SERVICE, false))
+                    {
+                        if (e.MenuItem.IsChecked)
+                        {
+                            Application.Context.StopService(TorchService);
+                            Application.Context.StartService(TorchService);
+                            e.MenuItem.SetChecked(false);
+                            editor.PutBoolean(FLASHLIGHT_SERVICE_ICON, false);
+                            editor.Commit();
+                        }
+                        else
+                        {
+                            Application.Context.StopService(TorchService);
+                            Application.Context.StartService(TorchService);
+                            editor.PutBoolean(FLASHLIGHT_SERVICE_ICON, true);
+                            e.MenuItem.SetChecked(true);
+                            editor.Commit();
+                        }
+                    }
+                    else
+                    {
+                        Toast.MakeText(this, "Notification Service is not running", ToastLength.Short).Show();
                     }
                     break;
                 default:
@@ -155,10 +185,10 @@ namespace TorchMain
             switch (result)
             {
                 case 0:
-                    light = false;
+                    Light = false;
                     break;
                 case 1:
-                    light = true;
+                    Light = true;
                     break;
             }
             HomeFragment fragment = (HomeFragment)FragmentManager.FindFragmentByTag("HomeFragment");

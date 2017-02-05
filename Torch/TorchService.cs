@@ -4,8 +4,6 @@ using Android.OS;
 using Android.Widget;
 using Android.Util;
 using Android.Hardware;
-using System.Linq;
-using Android.Preferences;
 
 namespace TorchMain
 {
@@ -13,6 +11,7 @@ namespace TorchMain
     public class FlashlightNotificationService : Service
     {
         FlashlightNotificationServiceBinder binder;
+        NotificationManager notificationManager;
 
         public const int SERVICE_RUNNING_NOTIFICATION_ID = 10000;
 
@@ -20,28 +19,37 @@ namespace TorchMain
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
         {
             Log.Debug("TorchService", "TorchService started");
-            Toast.MakeText(this, "The flashlight service has started", ToastLength.Long).Show();
-            StartServiceInForeground();
+            StartService();
             return StartCommandResult.NotSticky;
         }
 
-        void StartServiceInForeground()
+        void StartService()
         {
+            ISharedPreferences sharedPreferences = Application.Context.GetSharedPreferences("com.callioni.Torch_preferences", FileCreationMode.Private);
+            notificationManager =
+    GetSystemService(Context.NotificationService) as NotificationManager;
+
             // intent to toggle the flashlight on/off
             var toggleFlashIntent = PendingIntent.GetBroadcast(this, 0, new Intent("com.callioni.Torch.Toggle"), PendingIntentFlags.UpdateCurrent);
-            var notification = new Notification.Builder(this)
+            var notificationBuilder = new Notification.Builder(this)
                 .SetContentTitle(Resources.GetString(Resource.String.ApplicationName))
                 .SetContentText(Resources.GetString(Resource.String.notification_text))
                 .SetContentIntent(toggleFlashIntent)
                 .SetSmallIcon(Resource.Drawable.Icon)
-                .SetOngoing(true)
-                .Build();
+                .SetOngoing(true);
 
-            StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, notification);
+            if (sharedPreferences.GetBoolean("Flashlight_Service_Icon", false))
+            {
+                notificationBuilder.SetPriority(-2);
+            }
+            var notification = notificationBuilder.Build();
+
+            notificationManager.Notify(SERVICE_RUNNING_NOTIFICATION_ID, notification);
         }
 
         public override void OnDestroy()
         {
+            notificationManager.Cancel(SERVICE_RUNNING_NOTIFICATION_ID);
             base.OnDestroy();
             Log.Debug("TorchService", "TorchService stopped");
         }

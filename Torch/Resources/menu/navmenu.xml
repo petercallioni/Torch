@@ -3,7 +3,12 @@
     <item 
       android:id="@+id/toggleService"
       android:title="Toggle Flashlight Service"
-      android:checkable="true"/>
+      />  
+  <item
+     android:id="@+id/toggleServiceIcon"
+     android:title="Toggle Notification Icon"
+     />
+    
     <item />
     <item />
     <item />
