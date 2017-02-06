@@ -175,16 +175,7 @@ namespace TorchMain
         protected override void OnNewIntent(Intent intent)
         {
             // receives the flashlight's status then tells the fragment to swap the buttons
-            int result = intent.GetIntExtra("flashStatus", 0);
-            switch (result)
-            {
-                case 0:
-                    Light = false;
-                    break;
-                case 1:
-                    Light = true;
-                    break;
-            }
+            Light = intent.GetBooleanExtra("flashStatus", false);
             HomeFragment fragment = (HomeFragment)FragmentManager.FindFragmentByTag("HomeFragment");
             fragment.ChangeButtons();
             base.OnNewIntent(intent);

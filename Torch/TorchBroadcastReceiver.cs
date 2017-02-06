@@ -10,7 +10,7 @@ namespace TorchMain
     {
         //Camera is deprecated but I found it is much easier to use than Camera2
         static Camera camera = null;
-        int status = 0;
+        bool status = false;
         string name = "flashStatus";
         Intent sendBackStatus;
         Camera.Parameters parameters;
@@ -90,10 +90,10 @@ namespace TorchMain
             if (camera != null)
             {
                 parameters = camera.GetParameters();
-                status = parameters.FlashMode.Equals(Camera.Parameters.FlashModeOff) ? 0 : 1;
+                status = parameters.FlashMode.Equals(Camera.Parameters.FlashModeOff) ? false : true;
             }
             else
-                status = 0;
+                status = false;
             sendBackStatus = new Intent(context, typeof(FlashLightActivity));
             sendBackStatus.AddFlags(ActivityFlags.SingleTop);
             sendBackStatus.AddFlags(ActivityFlags.NewTask);
