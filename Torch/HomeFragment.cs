@@ -24,6 +24,7 @@ namespace TorchMain
             base.OnResume();
         }
 
+        // toggles the big ol' button
         public void ChangeButtons()
         {
             if (FlashLightActivity.Light)
@@ -50,7 +51,7 @@ namespace TorchMain
 
             ChangeButtons();
 
-            // other buttons
+            // buttons
             flashOnButton.Click += delegate
             {
                 Application.Context.SendBroadcast(new Intent("com.callioni.Torch.Toggle"));

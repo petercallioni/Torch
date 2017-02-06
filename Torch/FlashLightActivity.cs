@@ -1,15 +1,13 @@
 ﻿using Android.App;
-using Android.Widget;
-using Android.OS;
 using Android.Content;
-using System.Collections.Generic;
-using System.Linq;
-
+using Android.OS;
+using Android.Preferences;
 using Android.Support.Design.Widget;
 using Android.Support.V4.Widget;
 using Android.Support.V7.App;
-using Android.Preferences;
-using Android.Views;
+using Android.Widget;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace TorchMain
 {
@@ -33,17 +31,9 @@ namespace TorchMain
             InForground = true;
             if (sharedPreferences.GetBoolean(FLASHLIGHT_SERVICE, false))
             {
-                bool running = false;
                 navigationView.Menu.FindItem(Resource.Id.toggleService).SetChecked(true);
 
-                foreach (string service in GetRunningServices())
-                {
-                    if (service.Equals("FlashlightNotificationService"))
-                    {
-                        running = true;
-                    }
-                }
-                if (!running)
+                if (sharedPreferences.GetBoolean("notificationServiceRunning", false))
                 {
                     StartService(new Intent(Application.Context, typeof(FlashlightNotificationService)));
                 }
@@ -132,6 +122,7 @@ namespace TorchMain
             switch (e.MenuItem.ItemId)
             {
                 case (Resource.Id.toggleService):
+                    // clicked while checked
                     if (e.MenuItem.IsChecked)
                     {
                         Application.Context.StopService(TorchService);
@@ -139,6 +130,7 @@ namespace TorchMain
                         editor.PutBoolean(FLASHLIGHT_SERVICE, false);
                         editor.Commit();
                     }
+                    // clicked while unchecked
                     else
                     {
                         editor.PutBoolean(FLASHLIGHT_SERVICE, true);
@@ -149,6 +141,7 @@ namespace TorchMain
                     }
                     break;
                 case (Resource.Id.toggleServiceIcon):
+                    // toggling the icon while he service is on makes no sense
                     if (sharedPreferences.GetBoolean(FLASHLIGHT_SERVICE, false))
                     {
                         if (e.MenuItem.IsChecked)
@@ -181,6 +174,7 @@ namespace TorchMain
         }
         protected override void OnNewIntent(Intent intent)
         {
+            // receives the flashlight's status then tells the fragment to swap the buttons
             int result = intent.GetIntExtra("flashStatus", 0);
             switch (result)
             {
@@ -204,12 +198,6 @@ namespace TorchMain
         private void QueryTorchStatus()
         {
             SendBroadcast(new Intent("com.callioni.Torch.Status"));
-        }
-        private IEnumerable<string> GetRunningServices()
-        {
-            var manager = (ActivityManager)GetSystemService(ActivityService);
-            return manager.GetRunningServices(int.MaxValue).Select(
-                service => service.Service.ClassName).ToList();
         }
     }
 }

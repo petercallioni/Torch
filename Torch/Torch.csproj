@@ -79,6 +79,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="HomeFragment.cs" />
+    <Compile Include="TorchBroadcastReceiver.cs" />
     <Compile Include="TorchService.cs" />
     <Compile Include="FlashLightActivity.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
