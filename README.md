@@ -4,7 +4,7 @@ This application is a personal experiment of mine as it uses Xamarin to code for
 
 Mode 1) The standard mode where the main application presents you with an on/off button for the flashlight. Simple. 
 
-Mode2) In the main application's settings you can enable the notification service. This service provides a sticky notificiation that allows the user to toggle the flash on or off from the directly from the notification list. This allows you to turn the flash on or off without interrupting whatever you are doing.
+Mode 2) In the main application's settings you can enable the notification service. This service provides a sticky notificiation that allows the user to toggle the flash on or off from the directly from the notification list. This allows you to turn the flash on or off without interrupting whatever you are doing.
 
 There are four .cs files in this project FlashlightActivity.cs, HomeFragment.cs, and TorchService.cs and TorchBroadcastReceiver.cs. 
 
