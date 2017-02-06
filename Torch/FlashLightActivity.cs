@@ -13,7 +13,7 @@ using Android.Views;
 
 namespace TorchMain
 {
-    [Activity(Label = "@string/ApplicationName", MainLauncher = true, Icon = "@drawable/icon")]
+    [Activity(Label = "@string/ApplicationName", MainLauncher = true, Icon = "@drawable/Icon")]
     public class FlashLightActivity : AppCompatActivity
     {
         DrawerLayout drawerLayout;

@@ -4,7 +4,8 @@
     android:layout_height="178dp"
     android:orientation="vertical"
     android:weightSum="1"
-    android:background="@drawable/imgbg">
+    android:background="@drawable/imgBG"
+    android:gravity="fill_vertical">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="54dp"

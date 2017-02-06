@@ -2,23 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item 
       android:id="@+id/toggleService"
-      android:title="Toggle Flashlight Service"
+      android:title="Toggle Flashlight Notification On/Off"
       />  
   <item
      android:id="@+id/toggleServiceIcon"
-     android:title="Toggle Notification Icon"
+     android:title="Toggle Notification Icon On/Off"
      />
-    
-    <item />
-    <item />
-    <item />
-
-     <!--
-     <item android:title="title">
-      <menu>
-        <item />
-        <item/>
-      </menu>
-    </item>
-    -->
 </menu>

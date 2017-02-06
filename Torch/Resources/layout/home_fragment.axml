@@ -24,7 +24,7 @@
             android:tint="#ffff0000"
             android:scaleType="fitCenter"
             android:visibility="gone"
-            android:background="@null" 
+            android:background="@null"
             android:layout_marginBottom="50dp" />
         <ImageButton
             android:id="@+id/flashTorchOnButton"

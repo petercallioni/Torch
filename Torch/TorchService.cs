@@ -4,6 +4,7 @@ using Android.OS;
 using Android.Widget;
 using Android.Util;
 using Android.Hardware;
+using System;
 
 namespace TorchMain
 {
@@ -12,6 +13,8 @@ namespace TorchMain
     {
         FlashlightNotificationServiceBinder binder;
         NotificationManager notificationManager;
+        Notification.Builder notificationBuilder;
+        ISharedPreferences sharedPreferences;
 
         public const int SERVICE_RUNNING_NOTIFICATION_ID = 10000;
 
@@ -19,37 +22,54 @@ namespace TorchMain
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
         {
             Log.Debug("TorchService", "TorchService started");
-            StartService();
+            StartNotificationService(intent);
             return StartCommandResult.NotSticky;
         }
 
-        void StartService()
+        void StartNotificationService(Intent intent)
         {
-            ISharedPreferences sharedPreferences = Application.Context.GetSharedPreferences("com.callioni.Torch_preferences", FileCreationMode.Private);
+            sharedPreferences = Application.Context.GetSharedPreferences("com.callioni.Torch_preferences", FileCreationMode.Private);
             notificationManager =
     GetSystemService(Context.NotificationService) as NotificationManager;
 
             // intent to toggle the flashlight on/off
             var toggleFlashIntent = PendingIntent.GetBroadcast(this, 0, new Intent("com.callioni.Torch.Toggle"), PendingIntentFlags.UpdateCurrent);
-            var notificationBuilder = new Notification.Builder(this)
-                .SetContentTitle(Resources.GetString(Resource.String.ApplicationName))
-                .SetContentText(Resources.GetString(Resource.String.notification_text))
-                .SetContentIntent(toggleFlashIntent)
-                .SetSmallIcon(Resource.Drawable.Icon)
-                .SetOngoing(true);
+            notificationBuilder = new Notification.Builder(this)
+              .SetContentTitle(Resources.GetString(Resource.String.ApplicationName))
+              .SetContentText(Resources.GetString(Resource.String.notification_text))
+              .SetContentIntent(toggleFlashIntent)
+              .SetOngoing(true);
+            var editor = sharedPreferences.Edit();
+            editor.PutBoolean("notificationServiceRunning", true);
+            editor.Commit();
 
+            // if the user turned off the icon
             if (sharedPreferences.GetBoolean("Flashlight_Service_Icon", false))
             {
                 notificationBuilder.SetPriority(-2);
             }
-            var notification = notificationBuilder.Build();
 
-            notificationManager.Notify(SERVICE_RUNNING_NOTIFICATION_ID, notification);
+            // to dynamically change the notification icon
+            if (sharedPreferences.GetString("intentPrefs", "default").Equals("NotificationFlashIconOn"))
+            {
+                notificationBuilder.SetSmallIcon(Resource.Drawable.flashlightOn);
+            }
+            else
+            {
+                notificationBuilder.SetSmallIcon(Resource.Drawable.flashlightOff);
+            }
+            notificationManager.Notify(SERVICE_RUNNING_NOTIFICATION_ID, notificationBuilder.Build());
+
         }
 
         public override void OnDestroy()
         {
             notificationManager.Cancel(SERVICE_RUNNING_NOTIFICATION_ID);
+
+            var editor = sharedPreferences.Edit();
+            editor.PutBoolean("notificationServiceRunning", true);
+            editor.Commit();
+
             base.OnDestroy();
             Log.Debug("TorchService", "TorchService stopped");
         }
@@ -59,7 +79,6 @@ namespace TorchMain
             binder = new FlashlightNotificationServiceBinder(this);
             return binder;
         }
-
     }
     public class FlashlightNotificationServiceBinder : Binder
     {
@@ -88,6 +107,8 @@ namespace TorchMain
 
         public override void OnReceive(Context context, Intent intent)
         {
+            Intent service = new Intent(context, typeof(FlashlightNotificationService));
+            ISharedPreferences sharedPreferences = Application.Context.GetSharedPreferences("com.callioni.Torch_preferences", FileCreationMode.Private);
             switch (intent.Action)
             {
                 case "com.callioni.Torch.Toggle":
@@ -99,12 +120,19 @@ namespace TorchMain
                         parameters.FlashMode = Camera.Parameters.FlashModeTorch;
                         camera.SetParameters(parameters);
                         camera.StartPreview();
-                        if(FlashLightActivity.InForground)
+                        if (FlashLightActivity.InForground)
                         {
                             QueryFlashStatus(context); // camera != null == button toggles to show off
                         }
+                        if (sharedPreferences.GetBoolean("notificationServiceRunning", false))
+                        {
+                            var editor = sharedPreferences.Edit();
+                            editor.PutString("intentPrefs", "NotificationFlashIconOn");
+                            editor.Commit();
+                            context.StartService(service);
+                        }
                         return;
-                        
+
                     }
 
                     //if the camera is open
@@ -118,11 +146,18 @@ namespace TorchMain
                             camera.SetParameters(parameters);
                         }
                         camera.StopPreview();
-                        camera.Release();
+                        camera.Release(); 
                         camera = null;
                         if (FlashLightActivity.InForground)
                         {
                             QueryFlashStatus(context); // camera = null == button toggles to show on
+                        }
+                        if (sharedPreferences.GetBoolean("notificationServiceRunning", false))
+                        {
+                            var editor = sharedPreferences.Edit();
+                            editor.PutString("intentPrefs", "NotificationFlashIconOff");
+                            editor.Commit();
+                            context.StartService(service);
                         }
                         return;
                     }
@@ -131,13 +166,12 @@ namespace TorchMain
                     QueryFlashStatus(context);
                     break;
                 case Intent.ActionBootCompleted:
-                    ISharedPreferences sharedPreferences = Application.Context.GetSharedPreferences("com.callioni.Torch_preferences", FileCreationMode.Private);
                     if (sharedPreferences.GetBoolean("Flashlight_Service", false))
-                      {
-                     Intent service = new Intent(context, typeof(FlashlightNotificationService));
-                     service.AddFlags(ActivityFlags.NewTask);
-                     context.ApplicationContext.StartService(service);
-                     }
+                    {
+                        service.AddFlags(ActivityFlags.NewTask);
+                        context.ApplicationContext.StartService(service);
+                        service = null;
+                    }
                     break;
             }
         }

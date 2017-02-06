@@ -1978,22 +1978,25 @@ namespace TorchMain
 			public const int design_snackbar_background = 2130837589;
 			
 			// aapt resource value: 0x7f020056
-			public const int Icon = 2130837590;
+			public const int flashlightOff = 2130837590;
 			
 			// aapt resource value: 0x7f020057
-			public const int imgBg = 2130837591;
+			public const int flashlightOn = 2130837591;
 			
 			// aapt resource value: 0x7f020058
-			public const int navigation_empty_icon = 2130837592;
-			
-			// aapt resource value: 0x7f02005b
-			public const int notification_template_icon_bg = 2130837595;
+			public const int Icon = 2130837592;
 			
 			// aapt resource value: 0x7f020059
-			public const int powerbuttonS = 2130837593;
+			public const int imgBG = 2130837593;
 			
 			// aapt resource value: 0x7f02005a
-			public const int powerbuttonXS = 2130837594;
+			public const int navigation_empty_icon = 2130837594;
+			
+			// aapt resource value: 0x7f02005c
+			public const int notification_template_icon_bg = 2130837596;
+			
+			// aapt resource value: 0x7f02005b
+			public const int powerbuttonXS = 2130837595;
 			
 			static Drawable()
 			{
