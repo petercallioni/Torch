@@ -65,6 +65,8 @@ namespace TorchMain
         private void TouchButton(object sender, View.TouchEventArgs touchEventArgs)
         {
             ImageButton btn = (ImageButton)sender;
+            int x = btn.Width;
+            int y = btn.Height;
 
             switch (touchEventArgs.Event.Action)
             {
@@ -73,8 +75,18 @@ namespace TorchMain
                     buttonDown.Visibility = ViewStates.Visible;
                     break;
                 case MotionEventActions.Up:
+                     if(touchEventArgs.Event.GetX() > x || // moved out to the right
+                        touchEventArgs.Event.GetY() > y || // moved out to the bottom
+                        touchEventArgs.Event.GetX() < 0 || // moved out to the left
+                        touchEventArgs.Event.GetY() < 0)   // moved out to the top
+                     {
+                         btn.Visibility = ViewStates.Visible;
+                         buttonDown.Visibility = ViewStates.Gone;
+                        return;
+                     }
                     Application.Context.SendBroadcast(new Intent("com.callioni.Torch.Toggle"));
                     break;
+
             }
         }
     }
