@@ -50,7 +50,7 @@ namespace TorchMain
             }
 
             // to dynamically change the notification icon
-            if (sharedPreferences.GetBoolean("IsFlashOn", false) == true)
+            if (sharedPreferences.GetBoolean("IsFlashOn", false))
             {
                 notificationBuilder.SetSmallIcon(Resource.Drawable.flashlightOn);
             }

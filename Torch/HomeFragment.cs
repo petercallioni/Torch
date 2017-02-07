@@ -12,6 +12,7 @@ namespace TorchMain
         // ui
         private ImageButton flashOnButton;
         private ImageButton flashOffButton;
+        private ImageButton buttonDown;
 
         public override void OnCreate(Bundle savedInstanceState)
         {
@@ -31,15 +32,17 @@ namespace TorchMain
             {
                 flashOnButton.Visibility = ViewStates.Gone;
                 flashOffButton.Visibility = ViewStates.Visible;
+                buttonDown.Visibility = ViewStates.Gone;
             }
             else
             {
                 flashOnButton.Visibility = ViewStates.Visible;
                 flashOffButton.Visibility = ViewStates.Gone;
+                buttonDown.Visibility = ViewStates.Gone;
             }
         }
 
-       
+
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -48,21 +51,31 @@ namespace TorchMain
             // ui instantiations
             flashOnButton = rootView.FindViewById<ImageButton>(Resource.Id.flashTorchOnButton);
             flashOffButton = rootView.FindViewById<ImageButton>(Resource.Id.flashOffButton);
+            buttonDown = rootView.FindViewById<ImageButton>(Resource.Id.buttonDown);
+
 
             ChangeButtons();
 
             // buttons
-            flashOnButton.Click += delegate
-            {
-                Application.Context.SendBroadcast(new Intent("com.callioni.Torch.Toggle"));
-            };
-
-            flashOffButton.Click += delegate
-            {
-                Application.Context.SendBroadcast(new Intent("com.callioni.Torch.Toggle"));
-            };
-            
+            flashOnButton.Touch += TouchButton;
+            flashOffButton.Touch += TouchButton;
             return rootView;
+
+        }
+        private void TouchButton(object sender, View.TouchEventArgs touchEventArgs)
+        {
+            ImageButton btn = (ImageButton)sender;
+
+            switch (touchEventArgs.Event.Action)
+            {
+                case MotionEventActions.Down:
+                    btn.Visibility = ViewStates.Gone;
+                    buttonDown.Visibility = ViewStates.Visible;
+                    break;
+                case MotionEventActions.Up:
+                    Application.Context.SendBroadcast(new Intent("com.callioni.Torch.Toggle"));
+                    break;
+            }
         }
     }
 }
