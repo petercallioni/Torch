@@ -36,7 +36,6 @@ namespace TorchMain
             var toggleFlashIntent = PendingIntent.GetBroadcast(this, 0, new Intent("com.callioni.Torch.Toggle"), PendingIntentFlags.UpdateCurrent);
             notificationBuilder = new Notification.Builder(this)
               .SetContentTitle(Resources.GetString(Resource.String.ApplicationName))
-              .SetContentText(Resources.GetString(Resource.String.notification_text))
               .SetContentIntent(toggleFlashIntent)
               .SetOngoing(true);
             var editor = sharedPreferences.Edit();
@@ -53,10 +52,12 @@ namespace TorchMain
             if (sharedPreferences.GetBoolean("IsFlashOn", false))
             {
                 notificationBuilder.SetSmallIcon(Resource.Drawable.flashlightOn);
+                notificationBuilder.SetContentText("Toggle Flashlight Off");
             }
             else
             {
                 notificationBuilder.SetSmallIcon(Resource.Drawable.flashlightOff);
+                notificationBuilder.SetContentText("Toggle Flashlight On");
             }
             notificationManager.Notify(SERVICE_RUNNING_NOTIFICATION_ID, notificationBuilder.Build());
 
