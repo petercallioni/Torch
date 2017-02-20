@@ -2272,6 +2272,12 @@ namespace TorchMain
 			// aapt resource value: 0x7f06000c
 			public const int normal = 2131099660;
 			
+			// aapt resource value: 0x7f060091
+			public const int notificationStyleGroup = 2131099793;
+			
+			// aapt resource value: 0x7f060093
+			public const int onOffNotificationStyle = 2131099795;
+			
 			// aapt resource value: 0x7f060033
 			public const int parallax = 2131099699;
 			
@@ -2415,6 +2421,9 @@ namespace TorchMain
 			
 			// aapt resource value: 0x7f06004b
 			public const int title_template = 2131099723;
+			
+			// aapt resource value: 0x7f060092
+			public const int toggleNotificationStyle = 2131099794;
 			
 			// aapt resource value: 0x7f06008f
 			public const int toggleService = 2131099791;

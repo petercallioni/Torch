@@ -1,11 +1,22 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item 
-      android:id="@+id/toggleService"
-      android:title="Toggle Flashlight Notification On/Off"
-      />  
+  <item
+    android:id="@+id/toggleService"
+    android:title="Toggle Flashlight Notification On/Off"
+      />
   <item
      android:id="@+id/toggleServiceIcon"
      android:title="Toggle Notification Icon On/Off"
      />
+  <group
+    android:id="@+id/notificationStyleGroup">
+    <item
+    android:id="@+id/toggleNotificationStyle"
+    android:title="Notification Toggle Style"
+    />
+    <item
+    android:id="@+id/onOffNotificationStyle"
+    android:title="Notification On/Off Style"
+    />
+  </group>
 </menu>

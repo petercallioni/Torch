@@ -42,6 +42,14 @@ namespace TorchMain
             {
                 navigationView.Menu.FindItem(Resource.Id.toggleServiceIcon).SetChecked(true);
             }
+            if (sharedPreferences.GetInt("NotificationStyle", 0) == 0)
+            {
+                navigationView.Menu.FindItem(Resource.Id.toggleNotificationStyle).SetChecked(true);
+            }
+            else if (sharedPreferences.GetInt("NotificationStyle", 0) == 1)
+            {
+                navigationView.Menu.FindItem(Resource.Id.onOffNotificationStyle).SetChecked(true);
+            }
             base.OnResume();
         }
 
@@ -53,11 +61,17 @@ namespace TorchMain
 
         protected override void OnCreate(Bundle bundle)
         {
+
+
             // if the phone as a flash to use
             bool hasFlash = ApplicationContext.PackageManager.HasSystemFeature(Android.Content.PM.PackageManager.FeatureCameraFlash);
             sharedPreferences = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
             editor = sharedPreferences.Edit();
 
+            if (sharedPreferences.GetInt("NotificationStyle", 0) == 0)
+            {
+                editor.PutInt("NotificationStyle", 0);
+            }
             // turn on notification action button
             TorchService = new Intent(Application.Context, typeof(FlashlightNotificationService));
 
@@ -115,6 +129,7 @@ namespace TorchMain
             ft.Add(Resource.Id.HomeFrameLayout, new HomeFragment(), "HomeFragment");
             ft.Commit();
 
+            navigationView.Menu.SetGroupCheckable(Resource.Id.notificationStyleGroup, true, true);
         }
 
         void NavigationView_NavigationItemSelected(object sender, NavigationView.NavigationItemSelectedEventArgs e)
@@ -165,6 +180,22 @@ namespace TorchMain
                     {
                         Toast.MakeText(this, "Notification Service is not running", ToastLength.Short).Show();
                     }
+                    break;
+                case (Resource.Id.toggleNotificationStyle):
+                    e.MenuItem.SetChecked(true);
+                    navigationView.Menu.FindItem(Resource.Id.onOffNotificationStyle).SetChecked(false);
+                    editor.PutInt("NotificationStyle", 0);
+                    editor.Commit();
+                    Application.Context.StopService(TorchService);
+                    Application.Context.StartService(TorchService);
+                    break;
+                case (Resource.Id.onOffNotificationStyle):
+                    e.MenuItem.SetChecked(true);
+                    navigationView.Menu.FindItem(Resource.Id.toggleNotificationStyle).SetChecked(false);
+                    editor.PutInt("NotificationStyle", 1);
+                    editor.Commit();
+                    Application.Context.StopService(TorchService);
+                    Application.Context.StartService(TorchService);
                     break;
                 default:
                     break;

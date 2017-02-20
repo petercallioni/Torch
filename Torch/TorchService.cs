@@ -29,36 +29,67 @@ namespace TorchMain
         void StartNotificationService(Intent intent)
         {
             sharedPreferences = Application.Context.GetSharedPreferences("com.callioni.Torch_preferences", FileCreationMode.Private);
-            notificationManager =
-    GetSystemService(Context.NotificationService) as NotificationManager;
+            notificationManager = GetSystemService(Context.NotificationService) as NotificationManager;
 
-            // intent to toggle the flashlight on/off
-            var toggleFlashIntent = PendingIntent.GetBroadcast(this, 0, new Intent("com.callioni.Torch.Toggle"), PendingIntentFlags.UpdateCurrent);
-            notificationBuilder = new Notification.Builder(this)
-              .SetContentTitle(Resources.GetString(Resource.String.ApplicationName))
-              .SetContentIntent(toggleFlashIntent)
-              .SetOngoing(true);
-            var editor = sharedPreferences.Edit();
-            editor.PutBoolean("notificationServiceRunning", true);
-            editor.Commit();
-
-            // if the user turned off the icon
-            if (sharedPreferences.GetBoolean("Flashlight_Service_Icon", false))
+            if(sharedPreferences.GetInt("NotificationStyle", 0) == 0)
             {
-                notificationBuilder.SetPriority(-2);
+                var toggleFlashIntent = PendingIntent.GetBroadcast(this, 0, new Intent("com.callioni.Torch.Toggle"), PendingIntentFlags.UpdateCurrent);
+                notificationBuilder = new Notification.Builder(this)
+                  .SetContentTitle(Resources.GetString(Resource.String.ApplicationName))
+                  .SetContentIntent(toggleFlashIntent)
+                  .SetOngoing(true);
+                var editor = sharedPreferences.Edit();
+                editor.PutBoolean("notificationServiceRunning", true);
+                editor.Commit();
+
+                // if the user turned off the icon
+                if (sharedPreferences.GetBoolean("Flashlight_Service_Icon", false))
+                {
+                    notificationBuilder.SetPriority(-2);
+                }
+
+                // to dynamically change the notification icon
+                if (sharedPreferences.GetBoolean("IsFlashOn", false))
+                {
+                    notificationBuilder.SetSmallIcon(Resource.Drawable.flashlightOn);
+                    notificationBuilder.SetContentText("Toggle Flashlight Off");
+                }
+                else
+                {
+                    notificationBuilder.SetSmallIcon(Resource.Drawable.flashlightOff);
+                    notificationBuilder.SetContentText("Toggle Flashlight On");
+                }
+            }
+            else if (sharedPreferences.GetInt("NotificationStyle", 0) == 1)
+            {
+                var onFlashIntent = PendingIntent.GetBroadcast(this, 0, new Intent("com.callioni.Torch.On"), PendingIntentFlags.UpdateCurrent);
+                var offFlashIntent = PendingIntent.GetBroadcast(this, 0, new Intent("com.callioni.Torch.Off"), PendingIntentFlags.UpdateCurrent);
+                notificationBuilder = new Notification.Builder(this)
+                  .SetContentTitle(Resources.GetString(Resource.String.ApplicationName))
+                  .AddAction(Resource.Drawable.flashlightOn, "On", onFlashIntent)
+                  .AddAction(Resource.Drawable.flashlightOff, "Off", offFlashIntent)
+                  .SetOngoing(true);
+                var editor = sharedPreferences.Edit();
+                editor.PutBoolean("notificationServiceRunning", true);
+                editor.Commit();
+
+                // if the user turned off the icon
+                if (sharedPreferences.GetBoolean("Flashlight_Service_Icon", false))
+                {
+                    notificationBuilder.SetPriority(-2);
+                }
+
+                // to dynamically change the notification icon
+                if (sharedPreferences.GetBoolean("IsFlashOn", false))
+                {
+                    notificationBuilder.SetSmallIcon(Resource.Drawable.flashlightOn);
+                }
+                else
+                {
+                    notificationBuilder.SetSmallIcon(Resource.Drawable.flashlightOff);
+                }
             }
 
-            // to dynamically change the notification icon
-            if (sharedPreferences.GetBoolean("IsFlashOn", false))
-            {
-                notificationBuilder.SetSmallIcon(Resource.Drawable.flashlightOn);
-                notificationBuilder.SetContentText("Toggle Flashlight Off");
-            }
-            else
-            {
-                notificationBuilder.SetSmallIcon(Resource.Drawable.flashlightOff);
-                notificationBuilder.SetContentText("Toggle Flashlight On");
-            }
             notificationManager.Notify(SERVICE_RUNNING_NOTIFICATION_ID, notificationBuilder.Build());
 
         }
