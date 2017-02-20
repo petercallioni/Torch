@@ -62,12 +62,14 @@ namespace TorchMain
             }
             else if (sharedPreferences.GetInt("NotificationStyle", 0) == 1)
             {
+                var toggleFlashIntent = PendingIntent.GetBroadcast(this, 0, new Intent("com.callioni.Torch.Toggle"), PendingIntentFlags.UpdateCurrent);
                 var onFlashIntent = PendingIntent.GetBroadcast(this, 0, new Intent("com.callioni.Torch.On"), PendingIntentFlags.UpdateCurrent);
                 var offFlashIntent = PendingIntent.GetBroadcast(this, 0, new Intent("com.callioni.Torch.Off"), PendingIntentFlags.UpdateCurrent);
                 notificationBuilder = new Notification.Builder(this)
                   .SetContentTitle(Resources.GetString(Resource.String.ApplicationName))
                   .AddAction(Resource.Drawable.flashlightOn, "On", onFlashIntent)
                   .AddAction(Resource.Drawable.flashlightOff, "Off", offFlashIntent)
+                  .SetContentIntent(toggleFlashIntent)
                   .SetOngoing(true);
                 var editor = sharedPreferences.Edit();
                 editor.PutBoolean("notificationServiceRunning", true);

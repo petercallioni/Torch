@@ -44,7 +44,7 @@ namespace TorchMain
                     }
                     break;
                 case "com.callioni.Torch.Status":
-                    QueryFlashStatus(context);
+                    QueryFlashStatus();
                     break;
                 case "com.callioni.Torch.On":
                     if (camera == null)
@@ -64,7 +64,7 @@ namespace TorchMain
                     break;
             }
         }
-        private void QueryFlashStatus(Context context)
+        private void QueryFlashStatus()
         {
             if (camera != null)
             {
@@ -73,11 +73,11 @@ namespace TorchMain
             }
             else
                 status = false;
-            sendBackStatus = new Intent(context, typeof(FlashLightActivity));
+            sendBackStatus = new Intent(GlobalContext, typeof(FlashLightActivity));
             sendBackStatus.AddFlags(ActivityFlags.SingleTop);
             sendBackStatus.AddFlags(ActivityFlags.NewTask);
             sendBackStatus.PutExtra(name, status);
-            context.StartActivity(sendBackStatus);
+            GlobalContext.StartActivity(sendBackStatus);
         }
         private void TurnTorchOn()
         {
@@ -88,7 +88,7 @@ namespace TorchMain
             camera.StartPreview();
             if (FlashLightActivity.InForground)
             {
-                QueryFlashStatus(GlobalContext); // camera != null == button toggles to show off
+                QueryFlashStatus(); // camera != null == button toggles to show off
             }
             if (sharedPreferences.GetBoolean("notificationServiceRunning", false))
             {
@@ -113,7 +113,7 @@ namespace TorchMain
             camera = null;
             if (FlashLightActivity.InForground)
             {
-                QueryFlashStatus(GlobalContext); // camera = null == button toggles to show on
+                QueryFlashStatus(); // camera = null == button toggles to show on
             }
             if (sharedPreferences.GetBoolean("notificationServiceRunning", false))
             {
